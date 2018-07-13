@@ -58,4 +58,15 @@ public class Model {
 			System.out.println("Archi: " + grafo.edgeSet().size());
 	}
 
+
+
+	public List<Author> findCoautori(Author value) {
+		
+		if(this.grafo==null)
+			creaGrafo() ;
+
+		return Graphs.neighborListOf(grafo, value);
+		
+	}
+
 }

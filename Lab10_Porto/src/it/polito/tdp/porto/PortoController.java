@@ -34,7 +34,18 @@ public class PortoController {
     @FXML
     void handleCoautori(ActionEvent event) {
     	
-    	m.creaGrafo();
+    	txtResult.clear();
+    	
+    	try {
+    	
+    	for (Author a : m.findCoautori(boxPrimo.getValue()))
+    		
+    		txtResult.appendText(a.toString());
+    	
+    	}catch( RuntimeException e) {
+    		
+    		e.printStackTrace();
+    	}
 
     }
 

@@ -74,60 +74,101 @@ public class PortoDAO {
 		
 		List <Author> autori= new ArrayList<>();
 	
-			final String sql = "SELECT * FROM author";
+			final String sql =  "SELECT * FROM author";
 
 			try {
-				Connection conn = DBConnect.getConnection();
-				PreparedStatement st = conn.prepareStatement(sql);
-
-				ResultSet rs = st.executeQuery();
-
-				while (rs.next()) {
-
-					Author autore = new Author(rs.getInt("id"), rs.getString("lastname"), rs.getString("firstname"));
+				
+				Connection conn = DBConnect.getConnection() ;	
+				PreparedStatement st = conn.prepareStatement(sql) ;
+				ResultSet res = st.executeQuery() ;
+				
+				while(res.next()) {
 					
-					autori.add(autore);
-
+					autori.add(new Author(res.getInt("id"), res.getString("lastname"), res.getString("firstname"))) ;
 				}
-
-				return autori;
+				
+				conn.close();
+				return autori ;
 				
 			} catch (SQLException e) {
-				// e.printStackTrace();
+				
+				e.printStackTrace();
 				throw new RuntimeException("Errore Db");
-			}
+	}
 		}
 
 	public List<Author> getCoautori(Author a) {
 		
 		List <Author> coautori= new ArrayList<>();
 		
-		final String sql = "select * from author where author.id in (select distinct c1.authorid " + 
+		final String sql =	"select * from author where author.id in (select distinct c1.authorid " + 
 							"from creator as c1,creator as c " + 
 							"where c1.eprintid=c.eprintid " + 
 							"and c.authorid =? " + 
-							"and c1.authorid<> c.authorid) ";
-
+							"and c1.authorid<> c.authorid)" ;
+			
 		try {
-			Connection conn = DBConnect.getConnection();
-			PreparedStatement st = conn.prepareStatement(sql);
+			
+			Connection conn = DBConnect.getConnection() ;
+			PreparedStatement st = conn.prepareStatement(sql) ;
 			
 			st.setInt(1, a.getId());
-
-			ResultSet rs = st.executeQuery();
-
-			while (rs.next()) {
-
-				Author c = new Author(rs.getInt("id"), rs.getString("lastname"), rs.getString("firstname"));
+			
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
 				
-				coautori.add(c);
-
+				coautori.add(new Author(res.getInt("id"), res.getString("lastname"), res.getString("firstname"))) ;
 			}
-
-			return coautori;
+			
+			conn.close();
+			return coautori ;
 			
 		} catch (SQLException e) {
-			// e.printStackTrace();
+		
+			e.printStackTrace();
+			throw new RuntimeException("Errore Db");
+}
+	}
+
+	public List<Paper> getArticolo(Author astart, Author aterminal) {
+		
+		List <Paper> articoli= new ArrayList<>();
+		
+		final String sql =	"select * " + 
+							"from paper,creator as c, creator as c1 " + 
+							"where paper.eprintid=  c.eprintid " + 
+							"and c.eprintid = c1.eprintid " + 
+							"and c.authorid = ? " + 
+							"and c1.authorid = ? ";
+						
+			
+		try {
+			
+			Connection conn = DBConnect.getConnection() ;
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			
+			st.setInt(1, astart.getId());
+			st.setInt(2, aterminal.getId());
+			
+			ResultSet rs = st.executeQuery() ;
+			
+			Paper p = null;
+			
+			while(rs.next()) {
+				
+				p = new Paper(rs.getInt("eprintid"), rs.getString("title"), rs.getString("issn"),
+							 rs.getString("publication"), rs.getString("type"), rs.getString("types")) ;
+				
+				articoli.add(p);
+			}
+			
+			conn.close();
+			return articoli ;
+			
+		} catch (SQLException e) {
+		
+			e.printStackTrace();
 			throw new RuntimeException("Errore Db");
 		}
 	}

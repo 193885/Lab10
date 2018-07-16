@@ -1,12 +1,15 @@
 package it.polito.tdp.porto;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import com.sun.java.swing.plaf.motif.resources.motif;
 
 import it.polito.tdp.porto.model.Author;
 import it.polito.tdp.porto.model.Model;
+import it.polito.tdp.porto.model.Paper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -26,7 +29,7 @@ public class PortoController {
     private ComboBox<Author> boxPrimo;
 
     @FXML
-    private ComboBox<?> boxSecondo;
+    private ComboBox<Author> boxSecondo;
 
     @FXML
     private TextArea txtResult;
@@ -34,13 +37,23 @@ public class PortoController {
     @FXML
     void handleCoautori(ActionEvent event) {
     	
-    	txtResult.clear();
+    	txtResult.clear();    	
     	
     	try {
     	
-    	for (Author a : m.findCoautori(boxPrimo.getValue()))
-    		
-    		txtResult.appendText(a.toString());
+	    	for (Author a : m.findCoautori(boxPrimo.getValue())) 
+	    		
+	    		txtResult.appendText(a.toString()+"\n");
+	    	
+
+	    	List<Author> noncoautori  = new ArrayList<>(m.getAllAutori()) ;
+	    	
+	    	noncoautori.removeAll(m.findCoautori(boxPrimo.getValue())) ;
+        	noncoautori.remove(boxPrimo.getValue()) ;
+        	
+        	boxSecondo.getItems().clear();
+        	
+	    	boxSecondo.getItems().addAll(noncoautori);	    	
     	
     	}catch( RuntimeException e) {
     		
@@ -51,6 +64,20 @@ public class PortoController {
 
     @FXML
     void handleSequenza(ActionEvent event) {
+    	
+    		txtResult.clear();
+    	    		
+  	List <Paper> sequenzaAuthor = m.findSequenza(boxPrimo.getValue(),boxSecondo.getValue());
+    		
+    		System.out.println("---------------------");
+    		
+    		System.out.println(sequenzaAuthor);
+    		
+    		
+    		
+   		for (Paper p: sequenzaAuthor)
+    			
+    			txtResult.appendText(p.toString()+"\n");
 
     }
 
@@ -65,10 +92,8 @@ public class PortoController {
 	public void setModel(Model model) {
 	
 		m= model;
-		
-		for(Author autore : m.getAllAutori())
-		
-		boxPrimo.getItems().add(autore);
+
+		boxPrimo.getItems().addAll( m.getAllAutori());
 		
 	}
 }
